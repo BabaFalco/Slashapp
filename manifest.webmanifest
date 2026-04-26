@@ -1,0 +1,17 @@
+{
+  "name": "Imposter",
+  "short_name": "Imposter",
+  "description": "Lokales Partyspiel mit geheimem Wort, Impostern und Timer.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#080816",
+  "theme_color": "#080816",
+  "icons": [
+    {
+      "src": "./assets/imposter-mask.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
