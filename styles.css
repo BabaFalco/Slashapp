@@ -15,10 +15,10 @@
   --green: #7cff00;
   --paper: #080711;
   --paper-2: #11102a;
-  --panel: rgba(255, 255, 255, 0.96);
-  --panel-strong: #ffffff;
+  --panel: rgba(30, 27, 64, 0.96);
+  --panel-strong: #1e1b40;
   --ink: #ffffff;
-  --panel-ink: #000000;
+  --panel-ink: var(--white);
   --muted: #f5f5f5;
   --line: #000000;
   --comic-shadow: #000000;
@@ -35,6 +35,8 @@
   --ghost-bg-grad: linear-gradient(135deg, #1e1b40, #22204c);
   --field-bg-grad: #1e1b40;
   --chip-bg-grad: #2a2552;
+  --panel-bg-grad: linear-gradient(135deg, #1e1b40, #22204c);
+  --panel-dots: rgba(255, 255, 255, 0.12);
 
   color-scheme: dark;
   font-family: "Inter", "Trebuchet MS", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -46,6 +48,7 @@
   --panel: rgba(255, 255, 255, 0.96);
   --panel-strong: #ffffff;
   --ink: #000000;
+  --panel-ink: var(--black);
   --muted: #1a1028;
   --glow: 0 0 20px rgba(255, 46, 138, 0.32), 0 0 34px rgba(0, 240, 255, 0.28);
 
@@ -57,6 +60,8 @@
   --ghost-bg-grad: linear-gradient(135deg, var(--white), #e6fdff);
   --field-bg-grad: var(--white);
   --chip-bg-grad: var(--white);
+  --panel-bg-grad: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(245, 245, 245, 0.92));
+  --panel-dots: rgba(0, 0, 0, 0.16);
 
   color-scheme: light;
 }
@@ -496,8 +501,8 @@ h3 {
   border-radius: var(--radius);
   color: var(--panel-ink);
   background:
-    radial-gradient(circle, rgba(0, 0, 0, 0.16) 1px, transparent 2px),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(245, 245, 245, 0.92));
+    radial-gradient(circle, var(--panel-dots) 1px, transparent 2px),
+    var(--panel-bg-grad);
   background-size: 13px 13px, auto;
   box-shadow: var(--shadow), var(--glow);
 }
@@ -1068,8 +1073,8 @@ input[type="range"] {
   border: 5px solid var(--black);
   border-radius: 50%;
   background:
-    radial-gradient(circle, rgba(0, 0, 0, 0.18) 1px, transparent 2px),
-    linear-gradient(135deg, var(--white), var(--rose));
+    radial-gradient(circle, var(--panel-dots) 1px, transparent 2px),
+    var(--panel-bg-grad);
   background-size: 12px 12px, auto;
 }
 
@@ -1079,7 +1084,7 @@ input[type="range"] {
   display: grid;
   justify-items: center;
   gap: 8px;
-  color: var(--black);
+  color: var(--panel-ink);
 }
 
 .time {
