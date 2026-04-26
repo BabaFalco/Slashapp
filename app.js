@@ -414,11 +414,9 @@ function renderReveal() {
           <button class="button primary" type="button" data-action="reveal-card">
             ${icon("arrow-up")} Karte hochziehen
           </button>
-          ${state.cardPeeked ? `
-            <button class="button ghost" type="button" data-action="next-card">
-              ${icon("check")} Weitergeben
-            </button>
-          ` : ""}
+          <button class="button ghost always-visible" type="button" data-action="next-card">
+            ${icon("check")} Weitergeben
+          </button>
         `}
       </div>
     </section>
@@ -430,7 +428,6 @@ function renderHiddenCard(card) {
     ${icon("lock", "card-symbol")}
     <div>
       <p class="role-title">Hochziehen</p>
-      <p class="muted">Nur ${escapeHtml(card.player.name)} schaut.</p>
     </div>
   `;
 }
