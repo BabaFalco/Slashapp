@@ -28,10 +28,16 @@ const DEFAULT_THEMES = [
   }
 ];
 
+const AVATARS = ["🦸‍♂️", "🦹‍♀️", "🧛‍♂️", "🧟", "🤖", "👽", "🤠", "👻", "🐵", "🦊", "🐯", "🐼", "🦄", "🐙", "🦖", "🐧"];
+
+function getRandomAvatar() {
+  return AVATARS[Math.floor(Math.random() * AVATARS.length)];
+}
+
 const DEFAULT_PLAYERS = [
-  { id: createId(), name: "Spieler 1" },
-  { id: createId(), name: "Spieler 2" },
-  { id: createId(), name: "Spieler 3" }
+  { id: createId(), name: "Spieler 1", avatar: getRandomAvatar() },
+  { id: createId(), name: "Spieler 2", avatar: getRandomAvatar() },
+  { id: createId(), name: "Spieler 3", avatar: getRandomAvatar() }
 ];
 
 const app = document.querySelector("#app");
@@ -109,7 +115,8 @@ function normalizeState(nextState = state) {
   nextState.players = Array.isArray(nextState.players) && nextState.players.length
     ? nextState.players.map((player) => ({
       id: player.id || createId(),
-      name: typeof player.name === "string" ? player.name : ""
+      name: typeof player.name === "string" ? player.name : "",
+      avatar: player.avatar || getRandomAvatar()
     }))
     : DEFAULT_PLAYERS;
 
@@ -345,6 +352,7 @@ function renderSetup() {
 function renderPlayerRow(player) {
   return `
     <div class="player-row">
+      <div class="player-avatar">${player.avatar || "👤"}</div>
       <input class="field" type="text" value="${escapeHtml(player.name)}" placeholder="Name" autocomplete="off" data-player-name data-player-id="${escapeHtml(player.id)}">
       <button class="button ghost icon-only" type="button" title="Spieler entfernen" aria-label="Spieler entfernen" data-action="remove-player" data-player-id="${escapeHtml(player.id)}">
         ${icon("minus")}
@@ -413,9 +421,9 @@ function renderReveal() {
 
 function renderHiddenCard(card) {
   return `
-    ${icon("lock", "card-symbol")}
+    <div class="card-avatar">${card.player.avatar || "👤"}</div>
     <div>
-      <p class="role-title">Hochziehen</p>
+      <p class="role-title">${escapeHtml(card.player.name)} ist an der Reihe</p>
     </div>
   `;
 }
@@ -660,7 +668,7 @@ function handleClick(event) {
 
   if (action === "add-player") {
     syncPlayerInputs();
-    state.players.push({ id: createId(), name: `Spieler ${state.players.length + 1}` });
+    state.players.push({ id: createId(), name: `Spieler ${state.players.length + 1}`, avatar: getRandomAvatar() });
     normalizeState();
     saveSetup();
     render();
