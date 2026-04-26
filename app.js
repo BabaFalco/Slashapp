@@ -388,7 +388,7 @@ function renderReveal() {
       </header>
 
       <div class="center">
-        <article class="secret-card ${roleClass} ${revealClass} ${hasPeekedClass}" data-reveal-card>
+        <article class="secret-card ${revealClass} ${hasPeekedClass}" data-reveal-card>
           <div class="card-reveal-layer ${roleClass}" aria-hidden="${state.cardVisible ? "false" : "true"}">
             <div class="card-content">
               ${renderVisibleCard(card)}
@@ -403,21 +403,9 @@ function renderReveal() {
       </div>
 
       <div class="stack reveal-actions">
-        ${state.cardVisible ? `
-          <button class="button primary" type="button" data-action="hide-card">
-            ${icon("arrow-down")} Karte runterlassen
-          </button>
-          <button class="button ghost" type="button" data-action="next-card">
-            ${icon("check")} Weitergeben
-          </button>
-        ` : `
-          <button class="button primary" type="button" data-action="reveal-card">
-            ${icon("arrow-up")} Karte hochziehen
-          </button>
-          <button class="button ghost always-visible" type="button" data-action="next-card">
-            ${icon("check")} Weitergeben
-          </button>
-        `}
+        <button class="button ghost always-visible" type="button" data-action="next-card">
+          ${icon("check")} Weitergeben
+        </button>
       </div>
     </section>
   `;
@@ -871,15 +859,7 @@ function handlePointerUp(event) {
   activeDragCard.style.transform = "";
 
   if (activeDragMode === "open" && offset < -70) {
-    state.cardVisible = true;
     state.cardPeeked = true;
-    render();
-  }
-
-  if (activeDragMode === "close" && offset > 70) {
-    state.cardVisible = false;
-    state.cardPeeked = true;
-    render();
   }
 
   dragStartY = null;
@@ -902,7 +882,13 @@ function startRound() {
   const words = theme.words.map(cleanText).filter(Boolean);
   const secretWord = sample(words);
   const revealOrder = shuffle(players);
-  const imposters = new Set(shuffle(players).slice(0, state.imposterCount).map((player) => player.id));
+  let candidates = players.filter((p) => !(state.previousImposters || []).includes(p.id));
+  if (candidates.length < state.imposterCount) {
+    candidates = players;
+  }
+  const chosenImposters = shuffle(candidates).slice(0, state.imposterCount).map((p) => p.id);
+  state.previousImposters = chosenImposters;
+  const imposters = new Set(chosenImposters);
   const firstSpeaker = sample(revealOrder);
   const firstIndex = revealOrder.findIndex((player) => player.id === firstSpeaker.id);
   const speakingOrder = revealOrder.slice(firstIndex).concat(revealOrder.slice(0, firstIndex));
