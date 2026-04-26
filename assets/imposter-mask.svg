@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Imposter App Icon</title>
+  <desc id="desc">A stylized mask icon for the Imposter game.</desc>
+  <rect width="512" height="512" rx="96" fill="#080816"/>
+  <path d="M52 52h408v408H52z" fill="#fff14f" opacity=".12"/>
+  <path d="M92 200c0-58 54-104 164-104s164 46 164 104v76c0 74-70 140-164 140S92 350 92 276v-76Z" fill="#00e5ff" stroke="#fff9db" stroke-width="18"/>
+  <path d="M132 218c19-24 53-35 91-28-16 34-45 53-84 58-8 1-13-10-7-30Zm248 0c-19-24-53-35-91-28 16 34 45 53 84 58 8 1 13-10 7-30Z" fill="#080816"/>
+  <path d="M190 318c35 28 97 28 132 0" fill="none" stroke="#fff14f" stroke-width="24" stroke-linecap="round"/>
+  <path d="M72 180c37-78 105-118 184-118s147 40 184 118" fill="none" stroke="#ff4df8" stroke-width="30" stroke-linecap="round"/>
+  <path d="M76 382 44 416m392-34 32 34M84 96 50 62m378 34 34-34" stroke="#8aff56" stroke-width="18" stroke-linecap="round"/>
+</svg>
