@@ -42,6 +42,7 @@ let timerId = null;
 let toastId = null;
 let dragStartY = null;
 let activeDragCard = null;
+let activeDragMode = null;
 
 applyAppearance();
 render();
@@ -74,6 +75,7 @@ function loadState() {
     round: null,
     revealIndex: 0,
     cardVisible: false,
+    cardPeeked: false,
     remainingSeconds: 180,
     timerRunning: false,
     appearance: "dark",
@@ -93,6 +95,7 @@ function loadState() {
       round: null,
       revealIndex: 0,
       cardVisible: false,
+      cardPeeked: false,
       remainingSeconds: saved.durationSeconds || fallback.durationSeconds,
       timerRunning: false,
       error: ""
@@ -365,6 +368,7 @@ function renderReveal() {
   const card = state.round.cards[state.revealIndex];
   const roleClass = card.role === "imposter" ? "imposter" : "civilian";
   const revealClass = state.cardVisible ? "revealed" : "covered";
+  const hasPeekedClass = state.cardPeeked ? "peeked" : "fresh";
 
   return `
     <section class="reveal-stage" data-screen="reveal">
@@ -384,7 +388,7 @@ function renderReveal() {
       </header>
 
       <div class="center">
-        <article class="secret-card ${roleClass} ${revealClass}" data-reveal-card>
+        <article class="secret-card ${roleClass} ${revealClass} ${hasPeekedClass}" data-reveal-card>
           <div class="card-reveal-layer ${roleClass}" aria-hidden="${state.cardVisible ? "false" : "true"}">
             <div class="card-content">
               ${renderVisibleCard(card)}
@@ -398,15 +402,23 @@ function renderReveal() {
         </article>
       </div>
 
-      <div class="stack">
+      <div class="stack reveal-actions">
         ${state.cardVisible ? `
-          <button class="button primary" type="button" data-action="next-card">
-            ${icon("check")} Verstanden
+          <button class="button primary" type="button" data-action="hide-card">
+            ${icon("arrow-down")} Karte runterlassen
+          </button>
+          <button class="button ghost" type="button" data-action="next-card">
+            ${icon("check")} Weitergeben
           </button>
         ` : `
           <button class="button primary" type="button" data-action="reveal-card">
             ${icon("arrow-up")} Karte hochziehen
           </button>
+          ${state.cardPeeked ? `
+            <button class="button ghost" type="button" data-action="next-card">
+              ${icon("check")} Weitergeben
+            </button>
+          ` : ""}
         `}
       </div>
     </section>
@@ -782,6 +794,13 @@ function handleClick(event) {
 
   if (action === "reveal-card") {
     state.cardVisible = true;
+    state.cardPeeked = true;
+    render();
+  }
+
+  if (action === "hide-card") {
+    state.cardVisible = false;
+    state.cardPeeked = true;
     render();
   }
 
@@ -819,12 +838,13 @@ function handleClick(event) {
 function handlePointerDown(event) {
   const card = event.target.closest("[data-reveal-card]");
   const cover = event.target.closest("[data-card-cover]") || card?.querySelector("[data-card-cover]");
-  if (!card || state.phase !== "reveal" || state.cardVisible) {
+  if (!card || state.phase !== "reveal") {
     return;
   }
 
   dragStartY = event.clientY;
   activeDragCard = cover;
+  activeDragMode = state.cardVisible ? "close" : "open";
   cover?.setPointerCapture?.(event.pointerId);
 }
 
@@ -833,8 +853,16 @@ function handlePointerMove(event) {
     return;
   }
 
-  const offset = Math.min(0, event.clientY - dragStartY);
-  activeDragCard.style.transform = `translateY(${Math.max(offset, -260)}px) rotate(-2deg)`;
+  const offset = event.clientY - dragStartY;
+
+  if (activeDragMode === "open") {
+    const lift = Math.max(Math.min(offset, 0), -260);
+    activeDragCard.style.transform = `translateY(${lift}px) rotate(-2deg)`;
+    return;
+  }
+
+  const drop = Math.min(Math.max(offset, 0), 280);
+  activeDragCard.style.transform = `translateY(calc(-76% + ${drop}px)) rotate(-4deg)`;
 }
 
 function handlePointerUp(event) {
@@ -845,13 +873,21 @@ function handlePointerUp(event) {
   const offset = event.clientY - dragStartY;
   activeDragCard.style.transform = "";
 
-  if (offset < -70) {
+  if (activeDragMode === "open" && offset < -70) {
     state.cardVisible = true;
+    state.cardPeeked = true;
+    render();
+  }
+
+  if (activeDragMode === "close" && offset > 70) {
+    state.cardVisible = false;
+    state.cardPeeked = true;
     render();
   }
 
   dragStartY = null;
   activeDragCard = null;
+  activeDragMode = null;
 }
 
 function startRound() {
@@ -894,6 +930,7 @@ function startRound() {
   state.phase = "reveal";
   state.revealIndex = 0;
   state.cardVisible = false;
+  state.cardPeeked = false;
   state.remainingSeconds = state.durationSeconds;
   state.timerRunning = false;
   state.error = "";
@@ -905,6 +942,7 @@ function advanceReveal() {
   if (state.revealIndex + 1 < state.round.cards.length) {
     state.revealIndex += 1;
     state.cardVisible = false;
+    state.cardPeeked = false;
     render();
     return;
   }
@@ -1085,6 +1123,7 @@ function icon(name, className = "icon") {
     pause: '<path d="M7 5a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5Zm7 0a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2V5Z"/>',
     lock: '<path d="M7 10V8a5 5 0 0 1 10 0v2h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2 0h6V8a3 3 0 0 0-6 0v2Z"/>',
     "arrow-up": '<path d="M12 3 5 10a1 1 0 1 0 1.4 1.4L11 6.8V20a1 1 0 1 0 2 0V6.8l4.6 4.6A1 1 0 0 0 19 10l-7-7Z"/>',
+    "arrow-down": '<path d="M12 21 5 14a1 1 0 1 1 1.4-1.4l4.6 4.6V4a1 1 0 1 1 2 0v13.2l4.6-4.6A1 1 0 0 1 19 14l-7 7Z"/>',
     check: '<path d="M9.2 16.6 4.8 12.2a1 1 0 1 1 1.4-1.4l3 3 8.6-8.6a1 1 0 1 1 1.4 1.4l-9.3 10a1 1 0 0 1-1.5 0Z"/>',
     seal: '<path d="M12 2 9.7 4.1 6.7 3.4 5.8 6.4 3 7.8l1.1 2.9L2.8 13.5l2.6 1.7.3 3.1 3.1.3 1.7 2.6 2.8-1.3 2.9 1.1 1.4-2.8 3-.9-.7-3 2.1-2.3-2.1-2.3.7-3-3-.9-1.4-2.8-2.9 1.1L12 2Zm-1.2 13.6-3.4-3.4 1.4-1.4 2 2 4.6-4.6 1.4 1.4-6 6Z"/>',
     mask: '<path d="M3 9c0-3.5 3.4-6 9-6s9 2.5 9 6v3.4c0 4.4-4 8.6-9 8.6s-9-4.2-9-8.6V9Zm3.3 1.2c1.8-.9 4-.7 5.4.3-1 1.8-2.7 2.8-5 2.8-.7 0-.9-2.5-.4-3.1Zm11.4 0c-1.8-.9-4-.7-5.4.3 1 1.8 2.7 2.8 5 2.8.7 0 .9-2.5.4-3.1ZM9 16.4c1.7 1.1 4.3 1.1 6 0"/>',
